@@ -1,0 +1,107 @@
+\documentclass{article}
+
+\usepackage{listings}
+
+\begin{document}
+Note: during lectures have students install mobaXterm
+\section{ROS In a Nutshell}
+\begin{itemize}
+    \item \textbf{Peer-to-Peer:} \quad Individual programs communicate over defined API
+    \item \textbf{Distributed:} \quad Programs can run on any number of computers
+    \item \textbf{Multilingual:} \quad Programs can be written in any language with a client library (Official: C++/Python, Unofficial: Java, Javascript, Rust, Julia)
+    \item \textbf{Lightweight:} \quad Libraries are very thin/have low overhead
+    \item \textbf{Free and Open Source:} \quad ROS in its entirety is open source
+\end{itemize}
+\section{ROS Master}
+\begin{itemize}
+    \item Manages comms between nodes (processes)
+    \item Every node registers with the master at startup
+    \item Started with \lstinline{roscore}.
+\end{itemize}
+\section{ROS Nodes}
+\begin{itemize}
+    \item Single purpose executable program
+    \item Individually compiled, executed, managed
+    \item Organized in \textit{packages}
+    \item Run a node with \lstinline{rosrun <package_name> <node_name>}
+    \item See active nodes with \lstinline{rosnode list}
+    \item See information about a node with \lstinline{rosnode info <node_name>}
+\end{itemize}
+\section{ROS Topics}
+\begin{itemize}
+    \item Nodes communicate over \textit{topics}
+    \begin{itemize}
+        \item Nodes can \textit{publish} or \textit{subscribe} to a topic
+        \item Typically, 1 publisher and $n$ subscribers
+    \end{itemize}
+    \item Topic is a name for a stream of messages
+    \item List active topics with \lstinline{rostopic list}
+    \item Subscribe and print the contents of a topic with \lstinline{rostopic echo <topic_path>}
+    \item Show information about a topic with \lstinline{rostopic info <topic_path>}
+\end{itemize}
+\section{ROS Messages}
+\begin{itemize}
+    \item Data structure defining the \textit{type} of a topic
+    \item Comprised of a nested structure of integers, floats, booleans, strings, etc. and arrays of objects
+    \item Defined in \textit{*.msg} files
+    \item See the type of a topic \lstinline{rostopic type <topic_path>}
+    \item Publish a message to a topic \lstinline{rostopic pub <topic_path> <topic_type> <data_string>}
+\end{itemize}
+\section{ROS Workspace Environment}
+\begin{itemize}
+    \item Setup students with workspaces on odroid
+    \item \lstinline{setup <name> <github_name> <github_email>}
+    \item \lstinline{mkdir ws; cd ws; mkdir src; catkin_make; source devel/setup.bash}
+    \item check it worked with \lstinline{echo $ROS_PACKAGE_PATH}
+\end{itemize}
+\section{Catkin Build System}
+\begin{itemize}
+    \item The src directory contains source code. This is where you clone, create, edit code.
+    \item The build directory contains the code built whenever you run \lstinline{catkin_make}.
+    \item The devel directory contains scripts to make ros scripts work with this workspace.
+    \item Don't touch the build or devel directories. Just use the src directory.
+\end{itemize}
+\section{ROS Packages}
+\begin{itemize}
+    \item ROS software is organized into packages, which contains source code, launch files, config files, message definitions, data and docs
+    \item Packages can depend on other packages
+    \item To create a package, go to the src directory and run \lstinline{catkin_create_pkg <package_name> <dependencies>...}
+    \item Packages have a CMakeLists.txt and a package.xml. We shouldn't need to touch the package.xml, unless we change what ROS dependencies we have.
+    \item Go over CMakeLists.txt
+\end{itemize}
+\section{rospy example}
+\begin{itemize}
+    \item run \lstinline{catkin_create_pkg example1 rospy std_msgs}
+    \item edit scripts/node
+\end{itemize}
+\begin{lstlisting}
+#!/usr/bin/env python
+import rospy
+from std_msgs.msg import String
+
+def run():
+    pub = rospy.Publisher('test_wilson', String, 
+                          queue_size=10)
+    rospy.init_node('test_wilson')
+    rate = rospy.Rate(10)
+    while not rospy.is_shutdown():
+        test_str = 'hello world {}'.format(
+                        rospy.get_time())
+        pub.publish(test_str)
+        rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        run()
+    except rospy.ROSInterruptException:
+        pass
+\end{lstlisting}
+\begin{itemize}
+    \item edit CMakeLists.txt
+\end{itemize}
+\begin{lstlisting}
+catkin_install_python(PROGRAMS scripts/node 
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+\end{lstlisting}
+
+\end{document}
