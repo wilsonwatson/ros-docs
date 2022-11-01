@@ -103,5 +103,36 @@ if __name__ == '__main__':
 catkin_install_python(PROGRAMS scripts/node 
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 \end{lstlisting}
+\section{rospy subscriber example}
+\begin{itemize}
+    \item edit scripts/listener
+\end{itemize}
+\begin{lstlisting}
+#!/usr/bin/env python
+import rospy
+from std_msgs.msg import String
+
+def callback(data: String):
+    rospy.loginfo(rospy.get_caller_id() + 
+                  "I heard {}".format(data.data))
+
+def run():
+    rospy.init_node('test_wilson_listen')
+    rospy.Subscriber('test_wilson', String, callback)
+    rospy.spin()
+
+if __name__ == '__main__':
+    try:
+        run()
+    except rospy.ROSInterruptException:
+        pass
+\end{lstlisting}
+\begin{itemize}
+    \item edit CMakeLists.txt
+\end{itemize}
+\begin{lstlisting}
+catkin_install_python(PROGRAMS scripts/listener 
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+\end{lstlisting}
 
 \end{document}
